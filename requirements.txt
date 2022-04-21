@@ -1,0 +1,10 @@
+jsonschema
+flask
+flask-cors
+requests
+python-dateutil
+
+pytest
+jsonschema
+sphinx
+sphinx-rtd-theme
