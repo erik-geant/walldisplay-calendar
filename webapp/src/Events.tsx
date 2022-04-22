@@ -7,7 +7,7 @@ import {
 import "./styles.scss"
 import moment from 'moment'
 
-const EVENTS_API_ENDPOINT = "api/events";
+const EVENTS_API_ENDPOINT = "/api/events";
 
 export interface IAppProps {
     api_uri_base: string;
@@ -40,8 +40,10 @@ const make_event = (e: InputEvent): Event => {
 };
 
 const the_localizer = momentLocalizer(moment);
-const the_views = [Views.MONTH];
+// const the_views = [Views.MONTH];
 // const the_views = [Views.MONTH, Views.WEEK, Views.DAY];
+const the_views = [Views.MONTH, Views.WEEK];
+
 const Events: React.FC<IAppProps> = (props) => {
 
     const [events, setEvents] = React.useState<Event[]>([]);
@@ -64,7 +66,7 @@ const Events: React.FC<IAppProps> = (props) => {
         setInterval(reload, props.refresh_ms);
     }, [props.refresh_ms, props.api_uri_base]);
 
-    return <div className="height600">
+    return <div className="height-full">
         <Calendar
             // components={the_components}
             events={events}
