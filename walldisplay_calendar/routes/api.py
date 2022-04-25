@@ -12,6 +12,7 @@ API Endpoints
 """
 import requests
 from dateutil.parser import parse as date_parser
+from dateutil.parser import isoparse
 
 from flask import Blueprint, jsonify
 from walldisplay_calendar.routes import common
@@ -84,4 +85,12 @@ def load_events():
             'timezone': e['timezone'],
         }
 
-    return jsonify(list(map(_make_event, response['results'])))
+    def _not_too_long(e):
+        end = isoparse(e['endDate'])
+        start = isoparse(e['startDate'])
+        duration_s = (end - start).total_seconds()
+        return duration_s <= EMS_LONG_EVENT_THRESHOLD_S
+
+    events = map(_make_event, response['results'])
+    short_events = filter(_not_too_long, events)
+    return jsonify(list(short_events))

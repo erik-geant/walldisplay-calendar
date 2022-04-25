@@ -55,11 +55,7 @@ def test_events(client):
         end = isoparse(e['endDate'])
         return (end - start).total_seconds()
 
-    x = list(map(
-        lambda e: _duration(e) <= EMS_LONG_EVENT_THRESHOLD_S,
-        events))
-    print(x)
+    def _short_enough(e):
+        return _duration(e) <= EMS_LONG_EVENT_THRESHOLD_S
 
-    assert all(map(
-        lambda e: _duration(e) <= EMS_LONG_EVENT_THRESHOLD_S,
-        events))
+    assert all(map(_short_enough, events))
