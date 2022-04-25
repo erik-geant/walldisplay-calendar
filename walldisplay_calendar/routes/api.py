@@ -17,31 +17,35 @@ from flask import Blueprint, jsonify
 from walldisplay_calendar.routes import common
 
 routes = Blueprint("walldisplay-calendar-api", __name__)
+EMS_LONG_EVENT_THRESHOLD_S = 7 * 24 * 60 * 60  # 7 days
+EMS_EVENT_QUERY_WINDOW = '32d'
+EMS_EXPORT_URI = ('https://events.geant.org/export/categ/0.json'
+                  f'?from=-{EMS_EVENT_QUERY_WINDOW}'
+                  f'&to={EMS_EVENT_QUERY_WINDOW}')
 
-EMS_EXPORT_URI = 'https://events.geant.org/export/categ/0.json?from=-32d&to=32d'
+EVENT_LIST_SCHEMA = {
+    '$schema': 'http://json-schema.org/draft-07/schema#',
 
-# EVENT_LIST_SCHEMA = {
-#     '$schema': 'http://json-schema.org/draft-07/schema#',
-#
-#     'definitions': {
-#         'thing': {
-#             'type': 'object',
-#             'properties': {
-#                 'id': {'type': 'string'},
-#                 'time': {'type': 'number'},
-#                 'state': {'type': 'boolean'},
-#                 'data1': {'type': 'string'},
-#                 'data2': {'type': 'string'},
-#                 'data3': {'type': 'string'}
-#             },
-#             'required': ['id', 'time', 'state', 'data1', 'data2', 'data3'],
-#             'additionalProperties': False
-#         }
-#     },
-#
-#     'type': 'array',
-#     'items': {'$ref': '#/definitions/thing'}
-# }
+    'definitions': {
+        'timezone': {
+            'type': 'object',
+            'properties': {
+                'id': {'type': 'integer'},
+                'url': {'type': 'string'},
+                'title': {'type': 'string'},
+                'endDate': {'type': 'string'},
+                'startDate': {'type': 'string'},
+                'timezone': {'type': 'string'}
+            },
+            'required': [
+                'id', 'url', 'title', 'endDate', 'startDate', 'timezone'],
+            'additionalProperties': False
+        }
+    },
+
+    'type': 'array',
+    'items': {'$ref': '#/definitions/timezone'}
+}
 
 
 @routes.after_request
@@ -58,7 +62,7 @@ def load_events():
     response will be formatted as:
 
     .. asjson::
-        walldisplay_calendar.routes.api.THING_LIST_SCHEMA
+        walldisplay_calendar.routes.api.EVENT_LIST_SCHEMA
 
     :return:
     """
@@ -66,7 +70,7 @@ def load_events():
     r.raise_for_status()
     response = r.json()
 
-    def _make_date(dd):
+    def _format_date(dd):
         d = date_parser(f'{dd["date"]} {dd["time"]} {dd["tz"]}')
         return d.isoformat()
 
@@ -75,8 +79,8 @@ def load_events():
             'id': int(e['id']),
             'url': e['url'],
             'title': e['title'],
-            'endDate': _make_date(e['endDate']),
-            'startDate': _make_date(e['startDate']),
+            'endDate': _format_date(e['endDate']),
+            'startDate': _format_date(e['startDate']),
             'timezone': e['timezone'],
         }
 
