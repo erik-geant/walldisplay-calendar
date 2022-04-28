@@ -66,7 +66,7 @@ const Events: React.FC<IAppProps> = (props) => {
         setInterval(reload, props.refresh_ms);
     }, [props.refresh_ms, props.api_uri_base]);
 
-    return <div className="height-full">
+    return <div className="events">
         <Calendar
             // components={the_components}
             events={events}
