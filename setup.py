@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='walldisplay-calendar',
-    version="0.3",
+    version="0.4",
     author='GEANT',
     author_email='swd@geant.org',
     description='skeleton flask react app',
